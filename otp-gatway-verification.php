@@ -2,12 +2,12 @@
 /**
  * Plugin Name:       OTP Getway Verifcation
  * Description:       Sending Emails For OTP Verifcation
- *  Plugin URI:	      https://codup.co	
+ *  Plugin URI:       https://codup.co
  * Version:           1.1.1.0
  * Author:            Codup
  * Author URI:        https://codup.co
  * License:           GPL v2 or later
- * Text Domain: 	  otp-verification
+ * Text Domain:       otp-verification
 
  * @package otp-getway-verification
  */

@@ -36,10 +36,10 @@ if ( ! class_exists( 'OGV_Loader' ) ) {
 		 * Function for Including Files and Classes.
 		 */
 		public function includes() {
-			include_once 'class-ogv-gatway.php'; 
-			include_once 'class-ogv-otp-sending.php';
+			include_once 'class-ogv-otp-gateway.php';
+			include_once 'class-ogv-otp.php';
 			include_once 'class-ogv-otp-checking.php';
-			include_once 'class-ogv-otp-checkout-redirection.php';
+			include_once 'class-ogv-checkout-redirection.php';
 		}
 	}
 }

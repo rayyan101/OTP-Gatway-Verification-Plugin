@@ -5,7 +5,6 @@
  * @package otp-gateway-verification
  */
 
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -23,12 +22,12 @@ function wc_otp_gateway_class_adding( $gateways ) {
 add_filter( 'woocommerce_payment_gateways', 'wc_otp_gateway_class_adding' );
 
 
-add_action( 'plugins_loaded', 'Init_gatway_class', 11 );
+add_action( 'plugins_loaded', 'init_gatway_class', 11 );
 
 	/**
 	 * Define OGV_OTP_Gateway Class.
 	 */
-function Init_gatway_class() {
+function init_gatway_class() {
 
 	if ( ! class_exists( 'OGV_OTP_Gateway' ) ) {
 		/**
@@ -45,7 +44,7 @@ function Init_gatway_class() {
 				$this->method_description = 'Description of OTP Verification';
 				$this->has_fields         = false;
 
-				// Method with all the options fields
+				// Method with all the options fields.
 				$this->init_form_fields();
 
 				// Load the settings.
@@ -54,9 +53,9 @@ function Init_gatway_class() {
 				$this->enabled     = $this->get_option( 'enabled' );
 				$this->shop_id     = $this->get_option( 'shop_id' );
 
-				// saving settings
+				// saving settings.
 				add_action( 'woocommerce_checkout_process', array( $this, 'verification_email_field_validation' ) );
-			
+
 			}
 
 			/**
@@ -64,7 +63,7 @@ function Init_gatway_class() {
 			 */
 			public function init_form_fields() {
 				$this->form_fields = apply_filters(
-					'woo_OTP_pay_fields',
+					'woo_otp_pay_fields',
 					array(
 						'enabled'      => array(
 							'title'   => __( 'Enable/Disable', 'otp-gateway-verification' ),
@@ -112,22 +111,25 @@ function Init_gatway_class() {
 				);
 			}
 
-
 			/**
-			 * Validates of Email Field on Checkout.
+			 * Validates OTP email value on OTP Checkout.
 			 *
 			 * @return boolean
 			 */
 			public function validate_fields() {
 				global $woocommerce;
 
-				if ( ! $_POST['otp_Verification_email'] ) {
+				if ( ! isset( $_POST['otp_Verification_email'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 					wc_add_notice( __( 'Email for OTP verification is a required field.', 'otp-gateway-verification' ), 'error' );
+					return false;
 				} else {
-					if ( ! filter_var( $_POST['otp_Verification_email'], FILTER_VALIDATE_EMAIL ) ) {
+					if ( ! filter_var( wp_unslash( $_POST['otp_Verification_email'] ), FILTER_VALIDATE_EMAIL ) ) {  // phpcs:ignore WordPress.Security.NonceVerification, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 						wc_add_notice( __( 'Invalid email address for OTP Verification.', 'otp-gateway-verification' ), 'error' );
+						return false;
 					}
 				}
+
+				return true;
 			}
 
 			/**
@@ -154,7 +156,7 @@ function Init_gatway_class() {
 				update_post_meta( $order_id, 'OTP (Sent)', $db_otp );
 
 				// Updating orders meta with customer's OTP email.
-				update_post_meta( $order_id, 'Email_for_OTP', $_POST['otp_Verification_email'] );
+				update_post_meta( $order_id, 'Email_for_OTP', sanitize_email( wp_unslash( $_POST['otp_Verification_email'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 				return array(
 					'result'   => 'success',
@@ -166,6 +168,5 @@ function Init_gatway_class() {
 
 	}
 }
-
 
 

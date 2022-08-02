@@ -25,15 +25,15 @@ if ( ! class_exists( 'OGV_Checkout_Redirection' ) ) {
 		/**
 		 * Redirecting to OTP-Verification page.
 		 */
-		public function otp_gateway_order_received_redirect() { 
+		public function otp_gateway_order_received_redirect() {
 
 			// Do nothing if we are not at the Order Received page.
-			if ( ! is_wc_endpoint_url( 'order-received' ) || empty( $_GET['key'] ) ) {  
+			if ( ! is_wc_endpoint_url( 'order-received' ) || empty( $_GET['key'] ) ) {  // phpcs:ignore WordPress.Security.NonceVerification, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 				return;
 			}
-			
+
 			// Get the order ID.
-			$order_id = wc_get_order_id_by_order_key( sanitize_text_field( wp_unslash( $_GET['key'] ) ) );
+			$order_id = wc_get_order_id_by_order_key( sanitize_text_field( wp_unslash( $_GET['key'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			// Get an instance of the WC_Order object.
 			$order = wc_get_order( $order_id );
 
