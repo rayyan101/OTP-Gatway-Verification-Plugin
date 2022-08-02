@@ -32,7 +32,7 @@ if ( ! class_exists( 'OGV_Checkout_Redirection' ) ) {
 				return;
 			}
 
-			// Get the order ID.
+			// Get the order ID from key.
 			$order_id = wc_get_order_id_by_order_key( sanitize_text_field( wp_unslash( $_GET['key'] ) ) ); // phpcs:ignore WordPress.Security.NonceVerification, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 			// Get an instance of the WC_Order object.
 			$order = wc_get_order( $order_id );
