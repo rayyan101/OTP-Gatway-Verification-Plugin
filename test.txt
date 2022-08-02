@@ -1,0 +1,93 @@
+<?php
+/**
+ * Add OTP Verification Gateway to WC payment gateways.
+ *
+ * * @package otp-getway-verification
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+add_filter( 'woocommerce_payment_gateways', 'wc_otp_gateway_class_adding' );
+function wc_otp_gateway_class_adding( $gateways ) {
+	$gateways[] = 'ogv_getway';
+	return $gateways;
+}
+add_action( 'plugins_loaded', 'wc_otp_gateway', 11 );
+
+function wc_otp_gateway() {
+
+    class ogv_getway extends WC_Payment_Gateway {
+
+		public function __construct() {
+			$this->id                 = 'otp'; 
+			$this->method_title       = 'OTP Verify';
+			$this->method_description = 'Description of OTP Verification'; 
+			$this->has_fields = false;
+
+
+			$this->init_form_fields();
+			
+			$this->title           = $this->get_option( 'title' );
+			$this->description     = $this->get_option( 'description' );
+			$this->enabled         = $this->get_option( 'enabled' );
+			$this->shop_id = $this->get_option( 'shop_id' );  
+			
+			
+			
+			add_action( 'woocommerce_update_options_payment_gateways_' . $this->id, array( $this, 'process_admin_options' ) );
+		}
+		
+		public function init_form_fields() {
+			$this->form_fields = apply_filters( 'woo_OTP_pay_fields', array(
+				'enabled' => array(
+					'title' => __( 'Enable/Disable', 'OTP-pay-woo'),
+					'type' => 'checkbox',
+					'label' => __( 'Enable or Disable OTP Payments', 'OTP-pay-woo'),
+					'default' => 'no'
+				),
+				'title' => array(
+					'title' => __( 'OTP Payments Gateway', 'OTP-pay-woo'),
+					'type' => 'text',
+					'default' => __( 'OTP Payments Gateway', 'OTP-pay-woo'),
+					'desc_tip' => true,
+					'description' => __( 'Add a new title for the OTP Payments Gateway that customers will see when they are in the checkout page.', 'OTP-pay-woo')
+				),
+				'description' => array(
+					'title' => __( 'OTP Payments Gateway Description', 'OTP-pay-woo'),
+					'type' => 'textarea',
+					'default' => __( 'Please remit your payment to the shop to allow for the delivery to be made', 'OTP-pay-woo'),
+					'desc_tip' => true,
+					'description' => __( 'Add a new title for the OTP Payments Gateway that customers will see when they are in the checkout page.', 'OTP-pay-woo')
+				),
+				'instructions' => array(
+					'title' => __( 'Instructions', 'OTP-pay-woo'),
+					'type' => 'textarea',
+					'default' => __( 'Default instructions', 'OTP-pay-woo'),
+					'desc_tip' => true,
+					'description' => __( 'Instructions that will be added to the thank you page and odrer email', 'OTP-pay-woo')
+				),
+			));
+		}
+
+		public function process_payment( $order_id ) {
+			$order = wc_get_order( $order_id );
+
+			$order->update_status( 'on-hold',  __( 'Awaiting for OTP Verification,', 'otp-verification-gateway') );
+			$order->reduce_order_stock();
+			WC()->cart->empty_cart();
+			
+			$redirect_url = plugin_dir_url( __DIR__ ) . 'includes/testing.php';
+                    $otp_class_obj = new Ogv_otp();
+			        $otp_class_obj->sending_otp_to_email();      
+                    return array(
+                        'result'   => 'success',
+                        'redirect' => get_the_url($order),
+                    );
+		}
+	} 
+}
+
+
+
